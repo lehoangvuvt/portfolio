@@ -6,7 +6,7 @@ import styled from "styled-components";
 const Container = styled.div<{ $url: string }>`
   position: relative;
   width: 100%;
-  aspect-ratio: 16/7;
+  aspect-ratio: 16/8;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -26,7 +26,7 @@ const FilterDiv = styled.div<{
   $slicesAmount: number;
 }>`
   height: 100%;
-  flex: 1;
+  width: calc(100% / 30);
   background-image: url(${(props) => props.$url});
   background-repeat: no-repeat;
   background-position-x: ${(props) =>
@@ -42,11 +42,11 @@ const FilterDiv = styled.div<{
       ? "var(--ltr-transition)"
       : "var(--rtf-transition)"};
   filter: brightness(90%);
-  font-size: 42px;
+  font-size: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   .text {
     color: transparent;

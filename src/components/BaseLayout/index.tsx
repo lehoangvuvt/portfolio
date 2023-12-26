@@ -17,11 +17,15 @@ const Container = styled.div`
   font-family: var(--font-roboto);
 `;
 
+const Body = styled.div`
+  margin-top: 100px;
+`
+
 const BaseLayout = ({ children }: { children: ReactNode }) => {
   return (
     <Container>
       <Header />
-      {children}
+      <Body>{children}</Body>
     </Container>
   );
 };

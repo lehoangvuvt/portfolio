@@ -10,7 +10,7 @@ import { projects } from "@/data/data";
 const Container = styled.div`
   width: 100%;
   flex: 1;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   display: flex;
   flex-flow: column wrap;
   align-items: center;
@@ -28,26 +28,6 @@ const ProjectSlideContainerLeft = styled.div`
   display: flex;
   flex-flow: column wrap;
   position: relative;
-  &::before {
-    content: "";
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #131418;
-    position: absolute;
-    transform-origin: right;
-    animation: projectSlideAppear 1s ease forwards;
-    transform: scaleX(1);
-    @keyframes projectSlideAppear {
-      from {
-        transform: scaleX(1);
-      }
-      to {
-        transform: scaleX(0);
-      }
-    }
-  }
 `;
 
 const ProjectSlideLeftTitle = styled.div`
@@ -69,6 +49,26 @@ const ProjectSlideDescription = styled.div`
   width: 100%;
   padding-right: 30px;
   box-sizing: border-box;
+  &::before {
+    content: "";
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #131418;
+    position: absolute;
+    transform-origin: right;
+    animation: projectSlideAppear 1s ease forwards;
+    transform: scaleX(1);
+    @keyframes projectSlideAppear {
+      from {
+        transform: scaleX(1);
+      }
+      to {
+        transform: scaleX(0);
+      }
+    }
+  }
 `;
 
 export default function Home() {
@@ -96,12 +96,12 @@ export default function Home() {
         setDirection("rtl");
       }
     }
-    setTimeout(() => setAnimating(false), 1000);
+    setTimeout(() => setAnimating(false), 500);
   };
 
   return (
     <Container ref={containerRef} onWheelCapture={handleScroll}>
-      <ProjectSlideContainer key={currentIndex}>
+      <ProjectSlideContainer>
         <ProjectSlideContainerLeft>
           <ProjectSlideLeftTitle>
             <BuildText
@@ -109,7 +109,7 @@ export default function Home() {
               text={projects[currentIndex].name}
             />
           </ProjectSlideLeftTitle>
-          <ProjectSlideDescription>
+          <ProjectSlideDescription key={currentIndex}>
             {projects[currentIndex].description ?? ""}
           </ProjectSlideDescription>
           <p>Features:</p>
