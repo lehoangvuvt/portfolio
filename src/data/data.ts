@@ -79,4 +79,8 @@ export const homeSlides: HomeSlideData[] = [
     image: "home/home-2.png",
     title: "I am a Fullstack developer",
   },
+  {
+    image: "home/home-2.png",
+    title: "Press `Enter` to see my projects",
+  },
 ];

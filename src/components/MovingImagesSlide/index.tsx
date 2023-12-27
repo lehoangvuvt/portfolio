@@ -195,6 +195,10 @@ const MovingImagesSlide = ({
             $url={"/images/" + images[currentIndex].src}
             onMouseEnter={() => handleOnMouseEnter(i)}
             onMouseLeave={() => handleOnMouseLeave(i)}
+            style={{
+              pointerEvents:
+                currentIndex === images.length - 1 ? "none" : "auto",
+            }}
             className={
               jumpEnd
                 ? i === startIndex

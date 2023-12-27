@@ -1,11 +1,12 @@
 "use client";
 
 import styled from "styled-components";
-import { WheelEvent, useEffect, useRef, useState } from "react";
+import { KeyboardEvent, WheelEvent, useEffect, useRef, useState } from "react";
 import MovingImagesSlide from "@/components/MovingImagesSlide";
 import BuildText from "@/components/BuildText";
 import TimelineScroll from "@/components/TimelineScroll";
 import { homeSlides, projects } from "@/data/data";
+import { useRouter } from "next/navigation";
 
 const Container = styled.div`
   width: 100%;
@@ -220,25 +221,31 @@ const ScrollIndicatorContainer = styled.div`
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const currentIndexRef = useRef(0);
   const [isAnimating, setAnimating] = useState(false);
   const [isInit, setInit] = useState(true);
   const [direction, setDirection] = useState<"ltr" | "rtl">("ltr");
+  const router = useRouter();
 
   const handleScroll = (e: WheelEvent<HTMLDivElement>) => {
     if (!containerRef || !containerRef.current || isAnimating || isInit) return;
+    containerRef.current.focus();
     setAnimating(true);
     if (e.deltaY > 0) {
       if (currentIndex < homeSlides.length - 1) {
         setDirection("ltr");
+        currentIndexRef.current = currentIndex + 1;
         setCurrentIndex(currentIndex + 1);
       } else {
         setCurrentIndex(0);
       }
     } else {
       if (currentIndex > 0) {
+        currentIndexRef.current = currentIndex - 1;
         setCurrentIndex(currentIndex - 1);
         setDirection("ltr");
       } else {
+        currentIndexRef.current = homeSlides.length - 1;
         setCurrentIndex(homeSlides.length - 1);
         setDirection("ltr");
       }
@@ -246,8 +253,20 @@ export default function Home() {
     setTimeout(() => setAnimating(false), 3500);
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (currentIndexRef.current < homeSlides.length - 1) return;
+    if (e.key === "Enter") {
+      router.push("/projects");
+    }
+  };
+
   return (
-    <Container ref={containerRef} onWheelCapture={handleScroll}>
+    <Container
+      tabIndex={0}
+      ref={containerRef}
+      onKeyDown={handleKeyDown}
+      onWheelCapture={handleScroll}
+    >
       <ProjectSlideContainer>
         <ProjectSlideContainerTop>
           <MovingImagesSlide
