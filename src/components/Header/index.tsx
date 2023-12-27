@@ -6,15 +6,19 @@ import { ReactNode } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
-  width: 90%;
+  width: 100%;
   padding-top: 20px;
   padding-bottom: 20px;
-  margin-left: 5%;
+  padding-left: 5%;
+  padding-right: 5%;
+  box-sizing: border-box;
   display: flex;
   position: fixed;
   z-index: 100;
   box-sizing: border-box;
-  backdrop-filter: blur(1px) grayscale(50%);
+  &.has-filter {
+    backdrop-filter: blur(1px) grayscale(50%);
+  }
 `;
 
 const Left = styled.div`
@@ -24,7 +28,7 @@ const Left = styled.div`
   align-items: flex-end;
   justify-content: flex-start;
   img {
-    height: 50px;
+    height: 46px;
     cursor: pointer;
     position: relative;
     animation: logoAppear 0.5s ease;
@@ -107,9 +111,10 @@ const MenuItem = ({
 
 const Header = () => {
   const router = useRouter();
+  const pathName = usePathname();
 
   return (
-    <Container>
+    <Container className={pathName.includes("projects") ? "has-filter" : ""}>
       <Left>
         <img
           onClick={() => router.push("/")}

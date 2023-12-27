@@ -1,34 +1,34 @@
 "use client";
 
 import styled from "styled-components";
-import { WheelEvent, useRef, useState } from "react";
+import { WheelEvent, useEffect, useRef, useState } from "react";
 import MovingImagesSlide from "@/components/MovingImagesSlide";
 import BuildText from "@/components/BuildText";
 import TimelineScroll from "@/components/TimelineScroll";
-import { projects } from "@/data/data";
+import { homeSlides, projects } from "@/data/data";
 
 const Container = styled.div`
   width: 100%;
-  flex: 1;
+  height: 100%;
   color: rgba(255, 255, 255, 0.9);
   display: flex;
   flex-flow: column wrap;
   align-items: center;
-  overflow-x: hidden;
+  overflow-y: hidden;
+  position: absolute;
 `;
 
 const ProjectSlideContainer = styled.div`
-  width: 90%;
-  display: flex;
-  flex-flow: row wrap;
-  margin-top: 70px;
+  width: 100%;
+  height: 100%;
 `;
 
-const ProjectSlideContainerLeft = styled.div`
-  width: 50%;
+const ProjectSlideContainerBottom = styled.div`
+  width: 100%;
+  position: absolute;
+  bottom: 0;
   display: flex;
   flex-flow: column wrap;
-  position: relative;
   justify-content: center;
 `;
 
@@ -41,10 +41,12 @@ const ProjectSlideLeftTitle = styled.div`
   padding-right: 30px;
 `;
 
-const ProjectSlideContainerRight = styled.div`
-  width: 50%;
+const ProjectSlideContainerTop = styled.div`
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-flow: row wrap;
+  position: absolute;
 `;
 
 const ProjectSlideDescription = styled.div`
@@ -73,18 +75,161 @@ const ProjectSlideDescription = styled.div`
   }
 `;
 
+const ScrollIndicatorContainer = styled.div`
+  position: absolute;
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  pointer-events: none;
+  animation: scrollAppear 1s ease;
+  padding-bottom: 40px;
+  box-sizing: border-box;
+
+  @keyframes scrollAppear {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.8;
+    .scroll-btn .mouse > * {
+      -webkit-animation: none;
+      -moz-animation: none;
+      animation: none;
+    }
+  }
+
+  @-webkit-keyframes ani-mouse {
+    0% {
+      opacity: 1;
+      top: 29%;
+    }
+    15% {
+      opacity: 1;
+      top: 50%;
+    }
+    50% {
+      opacity: 0;
+      top: 50%;
+    }
+    100% {
+      opacity: 0;
+      top: 29%;
+    }
+  }
+  @-moz-keyframes ani-mouse {
+    0% {
+      opacity: 1;
+      top: 29%;
+    }
+    15% {
+      opacity: 1;
+      top: 50%;
+    }
+    50% {
+      opacity: 0;
+      top: 50%;
+    }
+    100% {
+      opacity: 0;
+      top: 29%;
+    }
+  }
+  @keyframes ani-mouse {
+    0% {
+      opacity: 1;
+      top: 29%;
+    }
+    15% {
+      opacity: 1;
+      top: 50%;
+    }
+    50% {
+      opacity: 0;
+      top: 50%;
+    }
+    100% {
+      opacity: 0;
+      top: 29%;
+    }
+  }
+  .scroll-btn {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+  .scroll-btn > * {
+    display: inline-block;
+    line-height: 18px;
+    font-size: 13px;
+    font-weight: normal;
+    color: #7f8c8d;
+    color: #ffffff;
+    font-family: "proxima-nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    letter-spacing: 2px;
+  }
+  .scroll-btn > *:hover,
+  .scroll-btn > *:focus,
+  .scroll-btn > *.active {
+    color: #ffffff;
+  }
+  .scroll-btn > *:hover,
+  .scroll-btn > *:focus,
+  .scroll-btn > *:active,
+  .scroll-btn > *.active {
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+  }
+  .scroll-btn .mouse {
+    position: relative;
+    display: block;
+    width: 35px;
+    height: 55px;
+    margin: 0 auto 20px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border: 3px solid white;
+    border-radius: 23px;
+  }
+  .scroll-btn .mouse > * {
+    position: absolute;
+    display: block;
+    top: 29%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    background: white;
+    border-radius: 50%;
+    -webkit-animation: ani-mouse 2.5s linear infinite;
+    -moz-animation: ani-mouse 2.5s linear infinite;
+    animation: ani-mouse 2.5s linear infinite;
+  }
+`;
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setAnimating] = useState(false);
+  const [isInit, setInit] = useState(true);
   const [direction, setDirection] = useState<"ltr" | "rtl">("ltr");
 
   const handleScroll = (e: WheelEvent<HTMLDivElement>) => {
-    if (!containerRef || !containerRef.current || isAnimating) return;
+    if (!containerRef || !containerRef.current || isAnimating || isInit) return;
     setAnimating(true);
     if (e.deltaY > 0) {
-      if (currentIndex < projects.length - 1) {
-        setDirection("rtl");
+      if (currentIndex < homeSlides.length - 1) {
+        setDirection("ltr");
         setCurrentIndex(currentIndex + 1);
       } else {
         setCurrentIndex(0);
@@ -94,18 +239,39 @@ export default function Home() {
         setCurrentIndex(currentIndex - 1);
         setDirection("ltr");
       } else {
-        setCurrentIndex(projects.length - 1);
-        setDirection("rtl");
+        setCurrentIndex(homeSlides.length - 1);
+        setDirection("ltr");
       }
     }
-    setTimeout(() => setAnimating(false), 500);
+    setTimeout(() => setAnimating(false), 3500);
   };
 
   return (
     <Container ref={containerRef} onWheelCapture={handleScroll}>
       <ProjectSlideContainer>
-        <ProjectSlideContainerLeft>
-          <TimelineScroll
+        <ProjectSlideContainerTop>
+          <MovingImagesSlide
+            onJumpEnd={() => {
+              if (isInit) {
+                setInit(false);
+              }
+              setAnimating(false);
+            }}
+            slicesAmount={65}
+            delayTime={0.01}
+            images={homeSlides.map((item) => {
+              return {
+                src: item.image,
+                text: item.title,
+              };
+            })}
+            direction={direction}
+            currentIndex={currentIndex}
+          />
+          <BuildText text={projects[currentIndex].name} />{" "}
+        </ProjectSlideContainerTop>
+        <ProjectSlideContainerBottom>
+          {/* <TimelineScroll
             timestamps={projects.map((project) => project.timestamp)}
             onSelectTS={(index) => {
               if (index < currentIndex) {
@@ -116,30 +282,27 @@ export default function Home() {
               setCurrentIndex(index);
             }}
             currentIndex={currentIndex}
-          />
-          <ProjectSlideLeftTitle>
+          /> */}
+          {/* <ProjectSlideLeftTitle>
             <BuildText
               style={{ fontSize: "30px", fontWeight: 700 }}
               text={projects[currentIndex].name}
             />
-          </ProjectSlideLeftTitle>
-        </ProjectSlideContainerLeft>
-        <ProjectSlideContainerRight>
-          <MovingImagesSlide
-            slicesAmount={30}
-            delayTime={0.05}
-            images={projects.map((project) => {
-              return {
-                src: project.image,
-                text: project.category,
-              };
-            })}
-            direction={direction}
-            currentIndex={currentIndex}
-          />
-          <BuildText text={projects[currentIndex].name} />{" "}
-        </ProjectSlideContainerRight>
+          </ProjectSlideLeftTitle> */}
+        </ProjectSlideContainerBottom>
       </ProjectSlideContainer>
+      {!isInit && (
+        <ScrollIndicatorContainer className={isAnimating ? "disabled" : ""}>
+          <span className="scroll-btn">
+            <a href="#">
+              <span className="mouse">
+                <span></span>
+              </span>
+            </a>
+            <p>{isAnimating ? "hold on" : "scroll me"}</p>
+          </span>
+        </ScrollIndicatorContainer>
+      )}
     </Container>
   );
 }

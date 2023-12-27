@@ -3,17 +3,22 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 
-const Container = styled.div<{ $url: string; $slicesAmount: number }>`
+const Container = styled.div<{
+  $url: string;
+  $slicesAmount: number;
+  $delayTime: number;
+}>`
   position: relative;
   width: 100%;
-  aspect-ratio: 16/8;
+  height: 100%;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   display: flex;
   flex-flow: row wrap;
   overflow: hidden;
-  transition: all calc(0.05s * ${(props) => props.$slicesAmount}) ease;
+  transition: all calc(${(props) => props.$delayTime * props.$slicesAmount})
+    ease;
   background-image: url(${(props) => props.$url});
   background-position-y: 100%;
 `;
@@ -26,7 +31,6 @@ const FilterDiv = styled.div<{
   $slicesAmount: number;
 }>`
   height: 100%;
-  overflow: hidden;
   width: calc(100% / ${(props) => props.$slicesAmount});
   background-size: calc(100% * ${(props) => props.$slicesAmount}) 100%;
   background-image: url(${(props) => props.$url});
@@ -43,7 +47,7 @@ const FilterDiv = styled.div<{
     props.$direction === "ltr"
       ? "var(--ltr-transition)"
       : "var(--rtf-transition)"};
-  filter: brightness(90%);
+  filter: brightness(100%);
   font-size: 26px;
   display: flex;
   align-items: center;
@@ -54,22 +58,35 @@ const FilterDiv = styled.div<{
     color: transparent;
     animation: none;
   }
+  &.jumped {
+    .text {
+      color: #f5f5f5;
+    }
+    &.hovered {
+      transform: scale(1.1);
+      filter: brightness(105%);
+      .text {
+        animation: jumpingText 0.5s ease;
+      }
+    }
+  }
   &.hovered {
-    filter: brightness(110%) blur(0px);
-    transform: scale(1.1);
+    /* transform: scale(1.1); */
     .text {
       color: #f5f5f5;
       animation: jumpingText
-        ${(props) => props.$delayTime * (props.$index + 1)}s ease infinite
-        alternate;
-      @keyframes jumpingText {
-        from {
-          transform: translateY(0);
-        }
-        to {
-          transform: translateY(${(props) => props.$index * -0.5}px);
-        }
-      }
+        ${(props) => props.$delayTime * 1 * (props.$index + 1)}s ease;
+    }
+  }
+  @keyframes jumpingText {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(${(props) => props.$index * -0.5}px);
+    }
+    100% {
+      transform: translateY(0);
     }
   }
 `;
@@ -85,29 +102,39 @@ const MovingImagesSlide = ({
   images,
   delayTime = 0.05,
   slicesAmount = 30,
+  timeIncrementInMs = 50,
+  onJumpEnd,
 }: {
   direction: "ltr" | "rtl";
   currentIndex: number;
   images: MovingImage[];
   delayTime?: number;
   slicesAmount?: number;
+  timeIncrementInMs?: number;
+  onJumpEnd?: () => void;
 }) => {
   const [startIndex, setStartIndex] = useState<number>(-1);
   const [endIndex, setEndIndex] = useState<number>(-1);
   const [text, setText] = useState<string[]>([]);
+  const [jumpEnd, setJumpEnd] = useState(false);
 
   const handleOnMouseEnter = (index: number) => {
-    if (index < 7) {
-      setStartIndex(0);
-      setEndIndex(index + 3);
-    } else {
-      setStartIndex(index - 5);
-      setEndIndex(index + 5);
-    }
+    if (!jumpEnd) return;
+    setStartIndex(index);
+    setEndIndex(index);
+  };
+
+  const handleOnMouseLeave = (index: number) => {
+    if (!jumpEnd) return;
+    setStartIndex(-1);
+    setEndIndex(-1);
   };
 
   useEffect(() => {
     setText([]);
+    setJumpEnd(false);
+    setEndIndex(-1);
+    setStartIndex(-1);
     const nameArr = images[currentIndex].text.split("");
     const lengthForSide = Math.floor((slicesAmount - nameArr.length) / 2);
     const textArr = [
@@ -118,6 +145,13 @@ const MovingImagesSlide = ({
     setTimeout(() => {
       setText(textArr);
     }, 500);
+    const timeEndJump = slicesAmount * timeIncrementInMs;
+    setTimeout(() => {
+      if (onJumpEnd) {
+        onJumpEnd();
+      }
+      setJumpEnd(true);
+    }, timeEndJump);
   }, [currentIndex]);
 
   useEffect(() => {
@@ -135,20 +169,18 @@ const MovingImagesSlide = ({
             setEndIndex(slicesAmount);
           }
         }
-        await new Promise((resolve) => setTimeout(() => resolve(""), 50));
+        await new Promise((resolve) =>
+          setTimeout(() => resolve(""), timeIncrementInMs)
+        );
         initIndex++;
-      } while (initIndex < 31);
+      } while (initIndex < slicesAmount + 1);
     };
     if (text.length > 0) increment(0);
   }, [text]);
 
-  const handleOnMouseLeave = (index: number) => {
-    setStartIndex(-1);
-    setEndIndex(-1);
-  };
-
   return (
     <Container
+      $delayTime={delayTime}
       $slicesAmount={slicesAmount}
       $url={"/images/" + images[currentIndex].src}
     >
@@ -164,7 +196,13 @@ const MovingImagesSlide = ({
             onMouseEnter={() => handleOnMouseEnter(i)}
             onMouseLeave={() => handleOnMouseLeave(i)}
             className={
-              i <= endIndex && i >= startIndex ? "hovered" : "not-hovered"
+              jumpEnd
+                ? i === startIndex
+                  ? "jumped hovered"
+                  : "jumped"
+                : i <= endIndex && i >= startIndex
+                ? "hovered"
+                : "not-hovered"
             }
             key={i}
           >

@@ -1,6 +1,7 @@
 "use client";
 
 import { ProjectData, projects } from "@/data/data";
+import { getDateByTS } from "@/utils/datetime.utils";
 import { WheelEvent, useEffect, useState } from "react";
 import styled from "styled-components";
 
@@ -8,7 +9,7 @@ const Container = styled.div<{ $image: string }>`
   width: 100%;
   padding-left: 5%;
   padding-right: 5%;
-  height: calc(100%);
+  height: 100%;
   top: 0px;
   position: absolute;
   overflow: hidden;
@@ -39,11 +40,24 @@ const ProjectInfo = styled.div`
   margin-left: 30%;
   z-index: 2;
   position: absolute;
-  margin-top: 250px;
+  margin-top: 200px;
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: column wrap;
   justify-content: flex-start;
   align-items: flex-start;
+`;
+
+const ProjectInfoTop = styled.div`
+  display: flex;
+  flex-flow: column wrap;
+  width: 100%;
+  padding-bottom: 40px;
+`;
+
+const ProjectInfoBottom = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
 `;
 
 const ProjectInfoLeft = styled.div`
@@ -85,7 +99,6 @@ const Line = styled.div`
         transform: rotate3d(1, 0, 0, 0deg);
       }
       to {
-        opacity: 1;
         transform: rotate3d(1, 0, 0, 90deg);
       }
     }
@@ -319,9 +332,9 @@ const Projects = () => {
         ))}
       </SlideContainer>
       <ProjectInfo>
-        <ProjectInfoLeft>
+        <ProjectInfoTop>
           <Line
-            style={{ color: "rgba(255,255,255,1)" }}
+            style={{ color: "rgba(255,255,255,1)", fontSize: "16px" }}
             className={
               isInit
                 ? ""
@@ -330,12 +343,13 @@ const Projects = () => {
                 : "mount"
             }
           >
-            {new Date(timestamp * 1000).getFullYear()}
+            {getDateByTS(timestamp * 1000).year}
           </Line>
-        </ProjectInfoLeft>
-        <ProjectInfoRight>
-          {getDesLines(description.split("_pid=")[0]).map((line, lIndex) => (
+        </ProjectInfoTop>
+        <ProjectInfoBottom>
+          <ProjectInfoLeft>
             <Line
+              style={{ color: "rgba(255,255,255,1)", fontSize: "15px" }}
               className={
                 isInit
                   ? ""
@@ -343,12 +357,34 @@ const Projects = () => {
                   ? "unmount"
                   : "mount"
               }
-              key={lIndex}
             >
-              {line}
+              {getDateByTS(timestamp * 1000).date > 10
+                ? getDateByTS(timestamp * 1000).date
+                : "0" + getDateByTS(timestamp * 1000).date}
+              &nbsp;/&nbsp;
+              {getDateByTS(timestamp * 1000).month > 10
+                ? getDateByTS(timestamp * 1000).month
+                : "0" + getDateByTS(timestamp * 1000).month}
             </Line>
-          ))}
-        </ProjectInfoRight>
+          </ProjectInfoLeft>
+          <ProjectInfoRight>
+            {getDesLines(description.split("_pid=")[0]).map((line, lIndex) => (
+              <Line
+                style={{ color: "rgba(255,255,255,0.9)", fontSize: "15px" }}
+                className={
+                  isInit
+                    ? ""
+                    : currentIndex !== parseInt(description.split("_pid=")[1])
+                    ? "unmount"
+                    : "mount"
+                }
+                key={lIndex}
+              >
+                {line}
+              </Line>
+            ))}
+          </ProjectInfoRight>
+        </ProjectInfoBottom>
       </ProjectInfo>
       <ScrollToViewMoreText>Scroll to view more</ScrollToViewMoreText>
     </Container>

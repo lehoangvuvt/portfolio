@@ -7,6 +7,11 @@ export type ProjectData = {
   features: string[];
 };
 
+export type HomeSlideData = {
+  image: string;
+  title: string;
+};
+
 export const projects: ProjectData[] = [
   {
     image: "image-1.png",
@@ -62,5 +67,16 @@ export const projects: ProjectData[] = [
       "Nunc suscipit neque vel ipsum mollis ullamcorper",
       "Ut gravida dui ac nisi ullamcorper, ut hendrerit ligula viverra",
     ],
+  },
+];
+
+export const homeSlides: HomeSlideData[] = [
+  {
+    image: "home/home-1.png",
+    title: "Hi there. I am Vu",
+  },
+  {
+    image: "home/home-2.png",
+    title: "I am a Fullstack developer",
   },
 ];
