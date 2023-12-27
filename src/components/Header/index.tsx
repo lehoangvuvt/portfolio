@@ -14,6 +14,7 @@ const Container = styled.div`
   position: fixed;
   z-index: 100;
   box-sizing: border-box;
+  backdrop-filter: blur(1px) grayscale(50%);
 `;
 
 const Left = styled.div`
@@ -58,6 +59,7 @@ const Center = styled.div`
   justify-content: center;
   gap: 25px;
 `;
+
 const Right = styled.div`
   width: 15%;
 `;

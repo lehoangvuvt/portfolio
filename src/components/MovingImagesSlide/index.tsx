@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 
-const Container = styled.div<{ $url: string }>`
+const Container = styled.div<{ $url: string; $slicesAmount: number }>`
   position: relative;
   width: 100%;
   aspect-ratio: 16/8;
@@ -13,9 +13,9 @@ const Container = styled.div<{ $url: string }>`
   display: flex;
   flex-flow: row wrap;
   overflow: hidden;
-  transition: all calc(0.05s * slicesAmount) ease;
+  transition: all calc(0.05s * ${(props) => props.$slicesAmount}) ease;
   background-image: url(${(props) => props.$url});
-  background-position-y: 70%;
+  background-position-y: 100%;
 `;
 
 const FilterDiv = styled.div<{
@@ -26,12 +26,14 @@ const FilterDiv = styled.div<{
   $slicesAmount: number;
 }>`
   height: 100%;
-  width: calc(100% / 30);
+  overflow: hidden;
+  width: calc(100% / ${(props) => props.$slicesAmount});
+  background-size: calc(100% * ${(props) => props.$slicesAmount}) 100%;
   background-image: url(${(props) => props.$url});
   background-repeat: no-repeat;
   background-position-x: ${(props) =>
     (props.$index * 100) / props.$slicesAmount}%;
-  background-position-y: 70%;
+  background-position-y: 100%;
   --ltr-transition: all ${(props) => props.$delayTime * (props.$index + 1)}s
     ease;
   --rtf-transition: all
@@ -146,7 +148,10 @@ const MovingImagesSlide = ({
   };
 
   return (
-    <Container $url={"/images/" + images[currentIndex].src}>
+    <Container
+      $slicesAmount={slicesAmount}
+      $url={"/images/" + images[currentIndex].src}
+    >
       {Array(slicesAmount)
         .fill("")
         .map((item, i) => (
@@ -154,7 +159,7 @@ const MovingImagesSlide = ({
             $slicesAmount={slicesAmount}
             $delayTime={delayTime}
             $direction={direction}
-            $index={i}
+            $index={i + 1}
             $url={"/images/" + images[currentIndex].src}
             onMouseEnter={() => handleOnMouseEnter(i)}
             onMouseLeave={() => handleOnMouseLeave(i)}

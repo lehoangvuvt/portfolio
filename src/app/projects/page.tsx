@@ -21,15 +21,9 @@ const Container = styled.div<{ $image: string }>`
     left: 0;
     bottom: 0;
     right: 0;
-    /* background-image: ${(props) => `url("${props.$image}")`}; */
-    /* background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center; */
-    /* filter: blur(10px) brightness(30%);
-    z-index: 1; */
   }
 
-  animation: containerAppear 0.5s ease;
+  animation: containerAppear 1s ease;
   @keyframes containerAppear {
     from {
       opacity: 0;
@@ -41,21 +35,59 @@ const Container = styled.div<{ $image: string }>`
 `;
 
 const ProjectInfo = styled.div`
-  width: 70%;
+  width: 40%;
   margin-left: 30%;
-  color: white;
-  font-size: 30px;
-  font-weight: 500;
-  text-transform: uppercase;
   z-index: 2;
   position: absolute;
-  animation: ProjectInfoAppear 1s ease;
-  @keyframes ProjectInfoAppear {
-    from {
-      opacity: 0;
+  margin-top: 250px;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+`;
+
+const ProjectInfoLeft = styled.div`
+  width: 18%;
+`;
+
+const ProjectInfoRight = styled.div`
+  width: 82%;
+  display: flex;
+  flex-flow: column wrap;
+`;
+
+const Line = styled.div`
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+  width: 100%;
+
+  &.mount {
+    animation: LineMount 0.5s ease 0.2s forwards;
+    transform: rotate3d(1, 0, 0, -90deg);
+    transform-origin: bottom;
+    @keyframes LineMount {
+      from {
+        transform: rotate3d(1, 0, 0, -90deg);
+      }
+      to {
+        opacity: 1;
+        transform: rotate3d(1, 0, 0, 0deg);
+      }
     }
-    to {
-      opacity: 1;
+  }
+  &.unmount {
+    animation: LineUnmount 0.5s ease 0.3s forwards;
+    transform: rotate3d(1, 0, 0, 0deg);
+    transform-origin: top;
+    @keyframes LineUnmount {
+      from {
+        transform: rotate3d(1, 0, 0, 0deg);
+      }
+      to {
+        opacity: 1;
+        transform: rotate3d(1, 0, 0, 90deg);
+      }
     }
   }
 `;
@@ -88,10 +120,11 @@ const ItemImage = styled.div<{ $image: string }>`
   aspect-ratio: 1;
   background-image: ${(props) => `url("${props.$image}")`};
   background-size: cover;
-  background-position: 50% 50%;
+  background-position: 0% 0%;
   background-repeat: no-repeat;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.6);
   border-radius: 6px;
+
   cursor: pointer;
 
   --clip-path-shape-1: polygon(
@@ -120,45 +153,44 @@ const ItemImage = styled.div<{ $image: string }>`
     21% 0
   );
   animation: waterShape 1s ease infinite alternate;
-
   @keyframes waterShape {
     from {
       clip-path: var(--clip-path-shape-1);
-      background-position: 50% 50%;
+      background-position: 0% 0%;
       margin-top: 0px;
       margin-left: 0px;
     }
     to {
       clip-path: var(--clip-path-shape-2);
-      background-position: calc(50% - 5px) calc(50% - 5px);
+      background-position: calc(0% - 5px) calc(0% - 5px);
       margin-top: -5px;
       margin-left: 5px;
     }
   }
-  --delay-time: 0.5s;
-  &.next,
-  &.previous,
-  &.current {
-    transition: all var(--delay-time) ease-in;
-  }
+  transition: all 0.5s ease-in;
   &.previous,
   &.next {
-    filter: grayscale(100%);
-  }
-  &.previous,
-  &.next,
-  &.current {
-    -webkit-mask: linear-gradient(0deg, transparent, 0, white 80%, transparent);
-    mask: linear-gradient(0deg, transparent, 0, white 80%, transparent);
+    filter: grayscale(50%);
   }
   &.current {
     transform: rotate(0deg) translateX(0%);
+    mask: linear-gradient(0deg, 0, 0, 0, 0);
   }
   &.previous {
     transform: rotate(-5deg) translateX(-5%);
+    -webkit-mask: linear-gradient(
+      0deg,
+      transparent,
+      white 20%,
+      white 80%,
+      white 80%
+    );
+    mask: linear-gradient(0deg, transparent, white 20%, white 80%, white 80%);
   }
   &.next {
     transform: rotate(5deg) translateX(-5%);
+    -webkit-mask: linear-gradient(0deg, transparent, 0, white 80%, transparent);
+    mask: linear-gradient(0deg, transparent, 0, white 80%, transparent);
   }
 `;
 
@@ -195,9 +227,13 @@ const Projects = () => {
   const scrollConstant = 100;
   const scrollUnit = heightPerItem - scrollConstant;
   const [currentTop, setCurrentTop] = useState(scrollUnit);
+  const [description, setDescription] = useState("");
+  const [timestamp, setTimestamp] = useState<number>(0);
+  const [isInit, setInit] = useState(true);
 
   const handleWheel = (e: WheelEvent<HTMLDivElement>) => {
     if (!canScroll) return;
+    setInit(false);
     setCanScroll(false);
     if (e.deltaY > 0) {
       if (currentIndex < projects.length) {
@@ -230,6 +266,37 @@ const Projects = () => {
     }, 1100);
   };
 
+  const getDesLines = (description: string): string[] => {
+    if (description.length > 60) {
+      const arr = description.split("");
+      let textPerLine = "";
+      const lines: string[] = [];
+      arr.forEach((character) => {
+        if (textPerLine.length < 60) {
+          textPerLine += character;
+        } else {
+          lines.push(textPerLine);
+          textPerLine = character;
+        }
+      });
+      return lines;
+    } else {
+      return [description];
+    }
+  };
+
+  useEffect(() => {
+    if (items) {
+      const delayMS = isInit ? 0 : 500;
+      setTimeout(() => {
+        setDescription(
+          items[currentIndex].description + "_pid=" + currentIndex
+        );
+        setTimestamp(items[currentIndex].timestamp);
+      }, delayMS);
+    }
+  }, [currentIndex, items, isInit]);
+
   return (
     <Container
       $image={"/images/" + items[currentIndex].image}
@@ -251,8 +318,37 @@ const Projects = () => {
           </Item>
         ))}
       </SlideContainer>
-      <ProjectInfo key={currentIndex}>
-        {/* {items[currentIndex] ? items[currentIndex].name : ""} */}
+      <ProjectInfo>
+        <ProjectInfoLeft>
+          <Line
+            style={{ color: "rgba(255,255,255,1)" }}
+            className={
+              isInit
+                ? ""
+                : currentIndex !== parseInt(description.split("_pid=")[1])
+                ? "unmount"
+                : "mount"
+            }
+          >
+            {new Date(timestamp * 1000).getFullYear()}
+          </Line>
+        </ProjectInfoLeft>
+        <ProjectInfoRight>
+          {getDesLines(description.split("_pid=")[0]).map((line, lIndex) => (
+            <Line
+              className={
+                isInit
+                  ? ""
+                  : currentIndex !== parseInt(description.split("_pid=")[1])
+                  ? "unmount"
+                  : "mount"
+              }
+              key={lIndex}
+            >
+              {line}
+            </Line>
+          ))}
+        </ProjectInfoRight>
       </ProjectInfo>
       <ScrollToViewMoreText>Scroll to view more</ScrollToViewMoreText>
     </Container>

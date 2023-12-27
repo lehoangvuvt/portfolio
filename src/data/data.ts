@@ -3,7 +3,7 @@ export type ProjectData = {
   name: string;
   timestamp: number;
   category: string;
-  description?: string;
+  description: string;
   features: string[];
 };
 
@@ -14,7 +14,7 @@ export const projects: ProjectData[] = [
     name: "Project 1",
     timestamp: 1651363200,
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ultrices auctor diam, fermentum imperdiet odio fringilla id. Ut ut nunc sem. Donec vel dolor iaculis nibh varius condimentum et sit.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in urna consequat, aliquam felis et, convallis nunc. Sed ac aliquet massa. Mauris imperdiet vulputate feugiat. In vel lacinia felis. In porttitor purus sapien, ac feugiat quam sollicitudin non. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sed erat placerat tortor laoreet pretium. Nam ac lacus enim. Quisque ornare, turpis ac ultricies lobortis, enim justo euismod metus, ac congue magna tortor sit amet mi. Aenean imperdiet lorem gravida elit blandit, vel semper arcu aliquet. Mauris et sapien sagittis, tempor quam ut, varius enim. Donec tortor massa, placerat a neque nec, porttitor luctus metus. Nunc pellentesque, magna quis dapibus cursus, orci dui dignissim tortor, id efficitur diam enim sed risus. Nam at ex sit amet felis porttitor tincidunt.",
     features: [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
       "Donec hendrerit est eget mi commodo, sed consequat nunc efficitur",
@@ -23,7 +23,7 @@ export const projects: ProjectData[] = [
     ],
   },
   {
-    image: "image-2.jpg",
+    image: "image-2.png",
     category: "Chat App",
     name: "Project 2",
     timestamp: 1667260800,

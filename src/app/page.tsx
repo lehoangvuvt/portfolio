@@ -21,6 +21,7 @@ const ProjectSlideContainer = styled.div`
   width: 90%;
   display: flex;
   flex-flow: row wrap;
+  margin-top: 70px;
 `;
 
 const ProjectSlideContainerLeft = styled.div`
@@ -28,6 +29,7 @@ const ProjectSlideContainerLeft = styled.div`
   display: flex;
   flex-flow: column wrap;
   position: relative;
+  justify-content: center;
 `;
 
 const ProjectSlideLeftTitle = styled.div`
@@ -103,22 +105,24 @@ export default function Home() {
     <Container ref={containerRef} onWheelCapture={handleScroll}>
       <ProjectSlideContainer>
         <ProjectSlideContainerLeft>
+          <TimelineScroll
+            timestamps={projects.map((project) => project.timestamp)}
+            onSelectTS={(index) => {
+              if (index < currentIndex) {
+                setDirection("ltr");
+              } else {
+                setDirection("rtl");
+              }
+              setCurrentIndex(index);
+            }}
+            currentIndex={currentIndex}
+          />
           <ProjectSlideLeftTitle>
             <BuildText
               style={{ fontSize: "30px", fontWeight: 700 }}
               text={projects[currentIndex].name}
             />
           </ProjectSlideLeftTitle>
-          <ProjectSlideDescription key={currentIndex}>
-            {projects[currentIndex].description ?? ""}
-          </ProjectSlideDescription>
-          <p>Features:</p>
-          <ul>
-            {projects[currentIndex].features.length > 0 &&
-              projects[currentIndex].features.map((feature, fIndex) => (
-                <li key={fIndex}>{feature}</li>
-              ))}
-          </ul>
         </ProjectSlideContainerLeft>
         <ProjectSlideContainerRight>
           <MovingImagesSlide
@@ -134,18 +138,6 @@ export default function Home() {
             currentIndex={currentIndex}
           />
           <BuildText text={projects[currentIndex].name} />{" "}
-          <TimelineScroll
-            timestamps={projects.map((project) => project.timestamp)}
-            onSelectTS={(index) => {
-              if (index < currentIndex) {
-                setDirection("ltr");
-              } else {
-                setDirection("rtl");
-              }
-              setCurrentIndex(index);
-            }}
-            currentIndex={currentIndex}
-          />
         </ProjectSlideContainerRight>
       </ProjectSlideContainer>
     </Container>
