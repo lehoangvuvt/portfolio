@@ -164,7 +164,7 @@ const MenuItem = ({
 const Header = () => {
   const router = useRouter();
   const pathName = usePathname();
-  const [isOpenMenu, setOpenMenu] = useState(true);
+  const [isOpenMenu, setOpenMenu] = useState(false);
 
   return (
     <Container>
