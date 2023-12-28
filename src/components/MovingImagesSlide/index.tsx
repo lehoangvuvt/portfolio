@@ -23,6 +23,34 @@ const Container = styled.div<{
   background-position-y: 100%;
 `;
 
+const SlideProgressBar = styled.div<{
+  $scaleX: number;
+  $delayTime: number;
+  $index: number;
+}>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.4);
+  z-index: 1;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: ${(props) =>
+      props.$index === 0 || props.$index % 2 === 0 ? "#09053d" : "#2e1a21"};
+    transform-origin: left;
+    transition: transform 0.1s ease, background-color 0.1s ease;
+    transform: scaleX(${(props) => props.$scaleX});
+  }
+`;
+
 const FilterDiv = styled.div<{
   $index: number;
   $direction: "ltr" | "rtl";
@@ -57,14 +85,14 @@ const FilterDiv = styled.div<{
   .text {
     color: transparent;
     animation: none;
+    font-family: var(--font-roboto-source-code);
+    font-weight: 400;
   }
   &.jumped {
     .text {
       color: #f5f5f5;
     }
     &.hovered {
-      transform: scale(1.1);
-      filter: brightness(105%);
       .text {
         animation: jumpingText 0.5s ease;
       }
@@ -73,7 +101,10 @@ const FilterDiv = styled.div<{
   &.hovered {
     /* transform: scale(1.1); */
     .text {
+      height: 100%;
       color: #f5f5f5;
+      display: flex;
+      align-items: center;
       animation: jumpingText
         ${(props) => props.$delayTime * 1 * (props.$index + 1)}s ease;
     }
@@ -117,6 +148,9 @@ const MovingImagesSlide = ({
   const [endIndex, setEndIndex] = useState<number>(-1);
   const [text, setText] = useState<string[]>([]);
   const [jumpEnd, setJumpEnd] = useState(false);
+  const [progressBarValue, setProgressBarValue] = useState(0);
+  const [lastFinishProgressBarValue, setLastFinishProgressBarValue] =
+    useState(0);
 
   const handleOnMouseEnter = (index: number) => {
     if (!jumpEnd) return;
@@ -124,7 +158,7 @@ const MovingImagesSlide = ({
     setEndIndex(index);
   };
 
-  const handleOnMouseLeave = (index: number) => {
+  const handleOnMouseLeave = () => {
     if (!jumpEnd) return;
     setStartIndex(-1);
     setEndIndex(-1);
@@ -135,6 +169,9 @@ const MovingImagesSlide = ({
     setJumpEnd(false);
     setEndIndex(-1);
     setStartIndex(-1);
+    if (currentIndex === 0) {
+      setLastFinishProgressBarValue(0);
+    }
     const nameArr = images[currentIndex].text.split("");
     const lengthForSide = Math.floor((slicesAmount - nameArr.length) / 2);
     const textArr = [
@@ -145,13 +182,6 @@ const MovingImagesSlide = ({
     setTimeout(() => {
       setText(textArr);
     }, 500);
-    const timeEndJump = slicesAmount * timeIncrementInMs;
-    setTimeout(() => {
-      if (onJumpEnd) {
-        onJumpEnd();
-      }
-      setJumpEnd(true);
-    }, timeEndJump);
   }, [currentIndex]);
 
   useEffect(() => {
@@ -173,10 +203,31 @@ const MovingImagesSlide = ({
           setTimeout(() => resolve(""), timeIncrementInMs)
         );
         initIndex++;
+        const totalSlices = slicesAmount + 1;
+        const totalSlides = images.length;
+        const percentagePerSlide = 1 / totalSlides;
+        const _progressBarValue =
+          parseFloat((initIndex / totalSlices).toFixed(4)) *
+            percentagePerSlide +
+          lastFinishProgressBarValue;
+        setProgressBarValue(_progressBarValue);
       } while (initIndex < slicesAmount + 1);
+      const slidePercentage = parseFloat(
+        ((currentIndex + 1) / images.length).toFixed(2)
+      );
+      setProgressBarValue(slidePercentage);
+      setLastFinishProgressBarValue(slidePercentage);
+      if (onJumpEnd) {
+        onJumpEnd();
+      }
+      setJumpEnd(true);
     };
     if (text.length > 0) increment(0);
   }, [text]);
+
+  useEffect(() => {
+    console.log({ progressBarValue });
+  }, [progressBarValue]);
 
   return (
     <Container
@@ -184,6 +235,11 @@ const MovingImagesSlide = ({
       $slicesAmount={slicesAmount}
       $url={"/images/" + images[currentIndex].src}
     >
+      <SlideProgressBar
+        $index={currentIndex}
+        $scaleX={progressBarValue}
+        $delayTime={timeIncrementInMs / 1000}
+      />
       {Array(slicesAmount)
         .fill("")
         .map((item, i) => (
@@ -194,11 +250,7 @@ const MovingImagesSlide = ({
             $index={i + 1}
             $url={"/images/" + images[currentIndex].src}
             onMouseEnter={() => handleOnMouseEnter(i)}
-            onMouseLeave={() => handleOnMouseLeave(i)}
-            style={{
-              pointerEvents:
-                currentIndex === images.length - 1 ? "none" : "auto",
-            }}
+            onMouseLeave={() => handleOnMouseLeave()}
             className={
               jumpEnd
                 ? i === startIndex
@@ -210,9 +262,7 @@ const MovingImagesSlide = ({
             }
             key={i}
           >
-            <div className="text">
-              {text.length > 0 && text[i].toUpperCase()}
-            </div>
+            <div className="text">{text.length > 0 && text[i]}</div>
           </FilterDiv>
         ))}
     </Container>

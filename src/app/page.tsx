@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "styled-components";
-import { KeyboardEvent, WheelEvent, useEffect, useRef, useState } from "react";
+import { KeyboardEvent, WheelEvent, useRef, useState } from "react";
 import MovingImagesSlide from "@/components/MovingImagesSlide";
 import BuildText from "@/components/BuildText";
 import TimelineScroll from "@/components/TimelineScroll";
@@ -17,6 +17,15 @@ const Container = styled.div`
   align-items: center;
   overflow-y: hidden;
   position: absolute;
+  animation: pageContainerAppear 0.5s ease;
+  @keyframes pageContainerAppear {
+    from {
+      filter: brightness(0%);
+    }
+    to {
+      filter: brightness(100%);
+    }
+  }
 `;
 
 const ProjectSlideContainer = styled.div`
@@ -276,7 +285,7 @@ export default function Home() {
               }
               setAnimating(false);
             }}
-            slicesAmount={65}
+            slicesAmount={60}
             delayTime={0.01}
             images={homeSlides.map((item) => {
               return {

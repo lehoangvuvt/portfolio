@@ -212,7 +212,7 @@ const ScrollToViewMoreText = styled.div`
   position: fixed;
   bottom: 0;
   left: 0;
-  z-index: 100;
+  z-index: 99;
   padding: 20px;
   text-align: center;
   color: rgba(255, 255, 255, 0.8);

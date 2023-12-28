@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat, Roboto } from "next/font/google";
+import { Montserrat, Roboto, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 import StyledComponentsRegistry from "./registry";
 
@@ -9,6 +9,12 @@ const roboto = Roboto({
   subsets: ["latin"],
   weight: ["100", "300", "400", "500", "700", "900"],
   variable: "--font-roboto",
+});
+
+const sourceCodePro = Source_Code_Pro({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-roboto-source-code",
 });
 
 export const metadata: Metadata = {
@@ -23,7 +29,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${roboto.variable}`}>
+      <body className={`${roboto.variable} ${sourceCodePro.variable}`}>
         <StyledComponentsRegistry>
           <BaseLayout>{children}</BaseLayout>
         </StyledComponentsRegistry>

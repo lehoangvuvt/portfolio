@@ -73,14 +73,14 @@ export const projects: ProjectData[] = [
 export const homeSlides: HomeSlideData[] = [
   {
     image: "home/home-1.png",
-    title: "Hi there. I am Vu",
+    title: "Hi there. I am Vu.",
   },
   {
     image: "home/home-2.png",
-    title: "I am a Fullstack developer",
+    title: "I am a Fullstack developer.",
   },
   {
-    image: "home/home-2.png",
-    title: "Press `Enter` to see my projects",
+    image: "home/home-1.png",
+    title: "Press [Enter] to see my projects.",
   },
 ];
